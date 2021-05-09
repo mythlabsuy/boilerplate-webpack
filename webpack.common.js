@@ -8,22 +8,30 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const PreloadWebpackPlugin = require('preload-webpack-plugin');
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
 
-const generateHTMLPlugins = () => glob.sync('./src/**/*.html').map(
+const generateHTMLPlugins = () => glob.sync('./src/**/*.hbs').map(
   dir => new HtmlWebpackPlugin({
-    filename: path.basename(dir), // Output
+    filename: path.basename(dir).replace('hbs', 'html'), // Output
     template: dir, // Input
-    inject: 'head'
+    inject: 'head',
+    minify: {
+      html5: true,
+      collapseWhitespace: true,
+      caseSensitive: true,
+      removeComments: true,
+      removeEmptyElements: true
+    },
   }),
 );
 
 module.exports = {
   mode: 'development',
   entry: {
-    main: './src/index.js',
+    bundle: './src/index.js',
     vendor: './src/vendor.js'
   },
   module: {
     rules: [
+      { test: /\.hbs$/, loader: "handlebars-loader" },
       {
         test: /\.txt$/,
         use: 'raw-loader'
