@@ -1,4 +1,5 @@
 const path = require('path');
+const glob = require('glob');
 
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
@@ -6,6 +7,14 @@ const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const PreloadWebpackPlugin = require('preload-webpack-plugin');
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
+
+const generateHTMLPlugins = () => glob.sync('./src/**/*.html').map(
+  dir => new HtmlWebpackPlugin({
+    filename: path.basename(dir), // Output
+    template: dir, // Input
+    inject: 'head'
+  }),
+);
 
 module.exports = {
   mode: 'development',
@@ -70,18 +79,7 @@ module.exports = {
         }
       ]
     }),
-    new HtmlWebpackPlugin({
-      title: 'tris-home-page',
-      filename: 'index.html',
-      template: './src/index.html',
-      inject: 'head'
-    }),
-    new HtmlWebpackPlugin({
-      title: 'tris-404-page',
-      filename: '404.html',
-      template: './src/404.html',
-      inject: 'head'
-    }),
+    ...generateHTMLPlugins(),
     new PreloadWebpackPlugin({
       rel: 'preload',
       as(entry) {
